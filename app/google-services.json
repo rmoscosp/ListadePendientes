@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "700968602589",
+    "project_id": "comrobinmplistadependientes",
+    "storage_bucket": "comrobinmplistadependientes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700968602589:android:8e3ea517463585ece1c434",
+        "android_client_info": {
+          "package_name": "com.robinmp.listadependientes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "700968602589-ephg67d4u96e50mqvndsvicam7qodq5t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.robinmp.listadependientes",
+            "certificate_hash": "628c65c08d024098343abdac03f67260fff36115"
+          }
+        },
+        {
+          "client_id": "700968602589-e8uqnbp3qjdausm32n16ldsiie9f0ata.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCR4sI4ur7W86PPXLseOhBHn96YLW9Ze2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700968602589-e8uqnbp3qjdausm32n16ldsiie9f0ata.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
