@@ -1,16 +1,11 @@
 package com.robinmp.listadependientes.ui.screens
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,6 +13,7 @@ import androidx.navigation.NavHostController
 import com.robinmp.listadependientes.data.model.Task
 import com.robinmp.listadependientes.ui.components.MyTopAppBar
 import com.robinmp.listadependientes.ui.components.TaskItem
+import com.robinmp.listadependientes.viewmodels.TaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +22,8 @@ fun TodoListScreen(
     tasks: List<Task>,
     onTaskUpdate: (List<Task>) -> Unit,
     onAddTaskClick: () -> Unit,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    taskViewModel: TaskViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -54,12 +51,17 @@ fun TodoListScreen(
                 TaskItem(
                     task = task,
                     onCheckChange = { isChecked ->
-                        onTaskUpdate(tasks.map {
-                            if (it.id == task.id) it.copy(isDone = isChecked) else it
-                        })
+                        val updated = task.copy(
+                            isDone = isChecked,
+                            progress = if (isChecked) 100 else task.progress,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                        taskViewModel.saveTask(updated)
+                        //taskViewModel.loadTasks()
                     },
                     onDelete = {
-                        onTaskUpdate(tasks.filter { it.id != task.id })
+                        taskViewModel.deleteTask(task.id)
+                        taskViewModel.loadTasks()
                     },
                     onEdit = {
                         navController.navigate("editTask/${task.id}")

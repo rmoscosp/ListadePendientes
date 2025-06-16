@@ -10,11 +10,17 @@ import kotlinx.coroutines.tasks.await
 class FirebaseTaskRepository {
 
     private val db = FirebaseFirestore.getInstance()
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "anon"
-    private val tasksRef = db.collection("users").document(userId).collection("tasks")
+
+    // 🔒 UID del usuario autenticado
+    private val userId: String
+        get() = FirebaseAuth.getInstance().currentUser?.uid
+            ?: throw IllegalStateException("Usuario no autenticado")
+
+    private val tasksRef
+        get() = db.collection("users").document(userId).collection("tasks")
 
     suspend fun saveTask(task: Task) {
-        tasksRef.document(task.id).set(task, SetOptions.merge()).await()
+        tasksRef.document(task.id).set(task).await()
     }
 
     suspend fun deleteTask(taskId: String) {

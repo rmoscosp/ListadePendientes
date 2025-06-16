@@ -39,4 +39,11 @@ class TaskViewModel : ViewModel() {
             loadTasks()
         }
     }
+
+    fun saveAll(tasks: List<Task>) {
+        viewModelScope.launch {
+            tasks.forEach { repository.saveTask(it) }
+            loadTasks()
+        }
+    }
 }
