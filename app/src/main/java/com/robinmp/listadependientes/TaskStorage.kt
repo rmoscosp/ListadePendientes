@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import com.robinmp.listadependientes.data.model.Task
 
 class TaskStorage(context: Context) {
     private val prefs: SharedPreferences =

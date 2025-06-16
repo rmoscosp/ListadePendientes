@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.robinmp.listadependientes.data.model.GeoLocation
 import com.robinmp.listadependientes.data.model.Task
-import com.robinmp.listadependientes.ui.theme.components.MyTopAppBar
+import com.robinmp.listadependientes.ui.components.MyTopAppBar
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)

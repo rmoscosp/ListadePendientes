@@ -1,8 +1,9 @@
-package com.robinmp.listadependientes.ui.theme.screens
+package com.robinmp.listadependientes.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,15 +14,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.robinmp.listadependientes.data.model.Task
-import com.robinmp.listadependientes.ui.theme.components.MyTopAppBar
+import com.robinmp.listadependientes.ui.components.MyTopAppBar
+import com.robinmp.listadependientes.ui.components.TaskItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen(
+    navController: NavHostController,
     tasks: List<Task>,
     onTaskUpdate: (List<Task>) -> Unit,
-    onAddTaskClick: () -> Unit
+    onAddTaskClick: () -> Unit,
+    onSignOut: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -29,7 +34,8 @@ fun TodoListScreen(
         topBar = {
             MyTopAppBar(
                 title = "Lista de Pendientes",
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                onSignOut = onSignOut
             )
         },
         floatingActionButton = {
@@ -54,6 +60,9 @@ fun TodoListScreen(
                     },
                     onDelete = {
                         onTaskUpdate(tasks.filter { it.id != task.id })
+                    },
+                    onEdit = {
+                        navController.navigate("editTask/${task.id}")
                     }
                 )
             }
