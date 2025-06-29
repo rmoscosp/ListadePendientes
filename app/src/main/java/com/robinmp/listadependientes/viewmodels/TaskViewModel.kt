@@ -7,6 +7,7 @@ import com.robinmp.listadependientes.data.repository.FirebaseTaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class TaskViewModel : ViewModel() {
 
@@ -21,10 +22,8 @@ class TaskViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // ❌ REMOVIDO: No cargar tareas automáticamente en init
-    // init {
-    //     loadTasks()
-    // }
+    // Para compatibilidad con diferentes pantallas
+    val errorMessage: StateFlow<String?> = _error
 
     fun loadTasks() {
         viewModelScope.launch {
@@ -58,8 +57,18 @@ class TaskViewModel : ViewModel() {
                     return@launch
                 }
 
-                repository.saveTask(task)
-                loadTasks()
+                // Asignar ID si no lo tiene (nueva tarea)
+                val taskToSave = if (task.id.isEmpty()) {
+                    task.copy(
+                        id = UUID.randomUUID().toString(),
+                        createdAt = System.currentTimeMillis()
+                    )
+                } else {
+                    task.copy(updatedAt = System.currentTimeMillis())
+                }
+
+                repository.saveTask(taskToSave)
+                loadTasks() // Recargar lista
             } catch (e: Exception) {
                 _error.value = e.message ?: "Error al guardar tarea"
             } finally {
@@ -80,13 +89,42 @@ class TaskViewModel : ViewModel() {
                 }
 
                 repository.deleteTask(taskId)
-                loadTasks()
+                loadTasks() // Recargar lista
             } catch (e: Exception) {
                 _error.value = e.message ?: "Error al eliminar tarea"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    /**
+     * Función para compatibilidad con TodoListScreen
+     */
+    fun toggleTaskCompletion(taskId: String) {
+        viewModelScope.launch {
+            try {
+                val currentTasks = _tasks.value
+                val taskToUpdate = currentTasks.find { it.id == taskId }
+
+                if (taskToUpdate != null) {
+                    val updatedTask = taskToUpdate.copy(
+                        isCompleted = !taskToUpdate.isCompleted,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    saveTask(updatedTask)
+                }
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Error al actualizar tarea"
+            }
+        }
+    }
+
+    /**
+     * Función para refrescar las tareas
+     */
+    fun refreshTasks() {
+        loadTasks()
     }
 
     fun saveAll(tasks: List<Task>) {
@@ -100,7 +138,14 @@ class TaskViewModel : ViewModel() {
                     return@launch
                 }
 
-                tasks.forEach { repository.saveTask(it) }
+                tasks.forEach { task ->
+                    val taskToSave = if (task.id.isEmpty()) {
+                        task.copy(id = UUID.randomUUID().toString())
+                    } else {
+                        task
+                    }
+                    repository.saveTask(taskToSave)
+                }
                 loadTasks()
             } catch (e: Exception) {
                 _error.value = e.message ?: "Error al guardar tareas"
@@ -112,5 +157,12 @@ class TaskViewModel : ViewModel() {
 
     fun clearError() {
         _error.value = null
+    }
+
+    /**
+     * Verifica si el usuario está autenticado
+     */
+    fun isUserAuthenticated(): Boolean {
+        return repository.isUserAuthenticated()
     }
 }
