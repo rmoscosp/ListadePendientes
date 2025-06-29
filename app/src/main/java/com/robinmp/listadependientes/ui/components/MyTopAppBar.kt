@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.robinmp.listadependientes.ListaDePendientesTheme
+import com.robinmp.listadependientes.ui.theme.ListaDependientesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +56,7 @@ fun MyTopAppBar(
 @Preview(showBackground = true)
 @Composable
 fun PreviewMyTopAppBar() {
-    ListaDePendientesTheme {
+    ListaDependientesTheme {
         MyTopAppBar(
             title = "Lista de Pendientes",
             onSignOut = { /* Acción simulada */ }

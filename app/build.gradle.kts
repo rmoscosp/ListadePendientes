@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-
+    // TUS DEPENDENCIAS EXISTENTES (NO TOCAR)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,18 +54,22 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.firebase.crashlytics.buildtools)
-    implementation("com.google.code.gson:gson:2.11.0") // Or the latest version
+    implementation("com.google.code.gson:gson:2.11.0")
 
     implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
     implementation("com.google.firebase:firebase-analytics")
-
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
     implementation(libs.firebase.firestore.ktx)
 
+    // ✨ SOLO AGREGAR ESTAS LÍNEAS PARA SEGURIDAD ✨
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
-    implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
+    // Para resolver el error de certificados de Google Fonts
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.5.4")
+
+    // TUS DEPENDENCIAS DE TESTING (NO TOCAR)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,8 +77,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-
-
-
 }

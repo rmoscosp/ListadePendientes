@@ -40,7 +40,7 @@ fun TaskItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Checkbox(
-                    checked = task.isDone,
+                    checked = task.isCompleted,
                     onCheckedChange = onCheckChange
                 )
                 Text(
@@ -48,7 +48,7 @@ fun TaskItem(
                     modifier = Modifier.weight(1f),
                     style = TextStyle(
                         fontSize = 16.sp,
-                        textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None
+                        textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
                     )
                 )
                 IconButton(onClick = onEdit) {
@@ -61,21 +61,50 @@ fun TaskItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Descripción si existe
             if (task.description.isNotBlank()) {
                 Text(text = "📋 ${task.description}", fontSize = 14.sp)
             }
 
-            Text(text = "📈 Avance: ${task.progress}%", fontSize = 12.sp)
+            // Progreso - mostrar solo si es mayor a 0
+            if (task.progress > 0) {
+                Text(text = "📈 Avance: ${task.progress}%", fontSize = 12.sp)
+            }
+
+            // Fecha de creación
             Text(text = "🕒 Creado: ${task.createdAt.toFormattedDate()}", fontSize = 12.sp)
-            Text(
-                text = "📍 Ubicación: ${task.location?.latitude ?: 0.0}, ${task.location?.longitude ?: 0.0}",
-                fontSize = 12.sp
-            )
+
+            // Ubicación - mostrar solo si existe y no es 0,0
+            task.location?.let { location ->
+                if (location.latitude != 0.0 || location.longitude != 0.0) {
+                    Text(
+                        text = "📍 Lat: ${String.format("%.4f", location.latitude)}, Lng: ${String.format("%.4f", location.longitude)}",
+                        fontSize = 12.sp
+                    )
+                }
+            }
+
+            // Prioridad si no es MEDIUM (por defecto)
+            if (task.priority.value > 2) {
+                Text(
+                    text = "⚡ Prioridad: ${task.priority.displayName}",
+                    fontSize = 12.sp,
+                    color = when (task.priority.value) {
+                        3 -> MaterialTheme.colorScheme.primary
+                        4 -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
+                )
+            }
         }
     }
 }
 
 private fun Long.toFormattedDate(): String {
-    val format = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
-    return format.format(Date(this))
+    return try {
+        val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        format.format(Date(this))
+    } catch (e: Exception) {
+        "Fecha inválida"
+    }
 }

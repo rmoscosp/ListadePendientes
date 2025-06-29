@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.dp
 import com.robinmp.listadependientes.data.model.GeoLocation
 import com.robinmp.listadependientes.data.model.Task
 import com.robinmp.listadependientes.ui.components.MyTopAppBar
-import com.robinmp.listadependientes.viewmodels.TaskViewModel
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -17,7 +16,8 @@ import java.util.*
 fun AddTaskScreen(
     onSave: (Task) -> Unit,
     onCancel: () -> Unit,
-    taskViewModel: TaskViewModel? = null,
+    // Parámetros opcionales para compatibilidad
+    taskViewModel: Any? = null,
     isLoading: Boolean = false,
     error: String? = null,
     onClearError: () -> Unit = {}
@@ -25,7 +25,12 @@ fun AddTaskScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var progress by remember { mutableStateOf(0) }
-    // Puedes usar valores reales si obtienes ubicación
+    var isLocalLoading by remember { mutableStateOf(false) }
+
+    // Usar isLoading local si no se proporciona uno externo
+    val actualIsLoading = isLoading || isLocalLoading
+
+    // Ubicación por defecto
     val dummyLocation = GeoLocation(latitude = 0.0, longitude = 0.0)
 
     // Mostrar error si existe
@@ -45,28 +50,31 @@ fun AddTaskScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(
+                OutlinedButton(
                     onClick = onCancel,
-                    enabled = !isLoading
+                    enabled = !actualIsLoading
                 ) {
                     Text("Cancelar")
                 }
                 Button(
                     onClick = {
                         if (title.isNotBlank()) {
+                            isLocalLoading = true
                             val task = Task(
+                                id = UUID.randomUUID().toString(),
                                 title = title,
                                 description = description,
                                 progress = progress,
-                                location = dummyLocation
-                                // id, createdAt y updatedAt se generan automáticamente
+                                location = dummyLocation,
+                                createdAt = System.currentTimeMillis()
                             )
                             onSave(task)
+                            isLocalLoading = false
                         }
                     },
-                    enabled = title.isNotBlank() && !isLoading
+                    enabled = title.isNotBlank() && !actualIsLoading
                 ) {
-                    if (isLoading) {
+                    if (actualIsLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp,
@@ -116,25 +124,45 @@ fun AddTaskScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Título") },
+                label = { Text("Título *") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
+                enabled = !actualIsLoading,
+                isError = title.isBlank(),
+                supportingText = if (title.isBlank()) {
+                    { Text("El título es obligatorio") }
+                } else null
             )
+
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
                 label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
+                enabled = !actualIsLoading,
+                minLines = 3
             )
-            Text("Progreso: $progress%")
-            Slider(
-                value = progress.toFloat(),
-                onValueChange = { progress = it.toInt() },
-                valueRange = 0f..100f,
-                steps = 9,
-                enabled = !isLoading
-            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Progreso: $progress%",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Slider(
+                        value = progress.toFloat(),
+                        onValueChange = { progress = it.toInt() },
+                        valueRange = 0f..100f,
+                        steps = 9,
+                        enabled = !actualIsLoading,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
         }
     }
 }

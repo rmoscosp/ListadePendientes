@@ -1,4 +1,5 @@
-package com.robinmp.listadependientes
+package com.robinmp.listadependientes.ui.theme
+
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+
+// Importar colores desde el paquete principal
+import com.robinmp.listadependientes.*
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -87,7 +91,6 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
-
 @Immutable
 data class ColorFamily(
     val color: Color,
@@ -101,20 +104,24 @@ val unspecified_scheme = ColorFamily(
 )
 
 @Composable
-fun ListaDePendientesTheme (
+fun ListaDependientesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    content: @Composable() () -> Unit
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
 ) {
-  val colorScheme = when {
-      darkTheme -> darkScheme
-      else -> lightScheme
-  }
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> darkScheme
+        else -> lightScheme
+    }
 
-  MaterialTheme(
-    colorScheme = colorScheme,
-    typography = AppTypography,
-    content = content
-  )
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = AppTypography,
+        content = content
+    )
 }
-

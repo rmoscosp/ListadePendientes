@@ -7,16 +7,15 @@ import androidx.security.crypto.MasterKey
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
+import android.util.Base64
 
 class SecurityManager(private val context: Context) {
 
     companion object {
         private const val SHARED_PREFS_NAME = "secure_prefs"
-        private const val USER_CREDENTIALS_KEY = "user_credentials"
         private const val ALGORITHM = "AES"
+        private const val TRANSFORMATION = "AES/ECB/PKCS5Padding"
     }
 
     private val masterKey: MasterKey by lazy {
@@ -98,17 +97,22 @@ class SecurityManager(private val context: Context) {
         return encryptedSharedPreferences.getString("username", null)
     }
 
+    // ✨ FUNCIONES FALTANTES - AGREGAR ESTAS ✨
+
     /**
      * Cifra datos sensibles de tareas
      */
     fun encryptTaskData(data: String): String {
         return try {
-            val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+            if (data.isEmpty()) return data
+
+            val cipher = Cipher.getInstance(TRANSFORMATION)
             val secretKey = generateSecretKey()
             cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-            val encryptedBytes = cipher.doFinal(data.toByteArray())
-            android.util.Base64.encodeToString(encryptedBytes, android.util.Base64.DEFAULT)
+            val encryptedBytes = cipher.doFinal(data.toByteArray(StandardCharsets.UTF_8))
+            Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
         } catch (e: Exception) {
+            android.util.Log.e("SecurityManager", "Error encrypting data", e)
             data // En caso de error, devolver datos sin cifrar
         }
     }
@@ -118,13 +122,16 @@ class SecurityManager(private val context: Context) {
      */
     fun decryptTaskData(encryptedData: String): String {
         return try {
-            val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+            if (encryptedData.isEmpty()) return encryptedData
+
+            val cipher = Cipher.getInstance(TRANSFORMATION)
             val secretKey = generateSecretKey()
             cipher.init(Cipher.DECRYPT_MODE, secretKey)
-            val decodedBytes = android.util.Base64.decode(encryptedData, android.util.Base64.DEFAULT)
+            val decodedBytes = Base64.decode(encryptedData, Base64.DEFAULT)
             val decryptedBytes = cipher.doFinal(decodedBytes)
-            String(decryptedBytes)
+            String(decryptedBytes, StandardCharsets.UTF_8)
         } catch (e: Exception) {
+            android.util.Log.e("SecurityManager", "Error decrypting data", e)
             encryptedData // En caso de error, devolver datos como están
         }
     }
@@ -132,10 +139,10 @@ class SecurityManager(private val context: Context) {
     /**
      * Genera una clave secreta para cifrado AES
      */
-    private fun generateSecretKey(): SecretKey {
+    private fun generateSecretKey(): SecretKeySpec {
         // En producción, esta clave debería ser generada y almacenada de forma segura
-        val keyString = "MySecretKey12345" // 16 bytes para AES
-        return SecretKeySpec(keyString.toByteArray(), ALGORITHM)
+        val keyString = "MySecretKey12345" // 16 bytes para AES-128
+        return SecretKeySpec(keyString.toByteArray(StandardCharsets.UTF_8), ALGORITHM)
     }
 
     /**
@@ -152,5 +159,12 @@ class SecurityManager(private val context: Context) {
         val username = encryptedSharedPreferences.getString("username", null)
         val password = encryptedSharedPreferences.getString("password", null)
         return !username.isNullOrEmpty() && !password.isNullOrEmpty()
+    }
+
+    /**
+     * Limpia completamente todos los datos almacenados
+     */
+    fun clearAllData() {
+        encryptedSharedPreferences.edit().clear().apply()
     }
 }
