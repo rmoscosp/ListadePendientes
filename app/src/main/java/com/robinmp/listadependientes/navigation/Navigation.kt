@@ -1,6 +1,6 @@
 package com.robinmp.listadependientes.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +19,10 @@ fun AppNavigation(
 ) {
     val navController = rememberNavController()
 
+    // Observar estados del ViewModel
+    val isLoading by taskViewModel.isLoading.collectAsState()
+    val error by taskViewModel.error.collectAsState()
+
     NavHost(navController = navController, startDestination = "taskList") {
 
         composable("taskList") {
@@ -33,6 +37,12 @@ fun AppNavigation(
                 },
                 onSignOut = {
                     com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+                },
+                taskViewModel = taskViewModel,
+                isLoading = isLoading,
+                error = error,
+                onClearError = {
+                    taskViewModel.clearError()
                 }
             )
         }
@@ -41,10 +51,17 @@ fun AppNavigation(
             AddTaskScreen(
                 onSave = { task ->
                     taskViewModel.saveTask(task)
-                    taskViewModel.loadTasks()
                     navController.popBackStack()
                 },
-                onCancel = { navController.popBackStack() }
+                onCancel = {
+                    navController.popBackStack()
+                },
+                taskViewModel = taskViewModel,
+                isLoading = isLoading,
+                error = error,
+                onClearError = {
+                    taskViewModel.clearError()
+                }
             )
         }
 
@@ -57,11 +74,23 @@ fun AppNavigation(
                     task = taskToEdit,
                     onSave = { updatedTask ->
                         taskViewModel.saveTask(updatedTask)
-                        taskViewModel.loadTasks()
                         navController.popBackStack()
                     },
-                    onCancel = { navController.popBackStack() }
+                    onCancel = {
+                        navController.popBackStack()
+                    },
+                    taskViewModel = taskViewModel,
+                    isLoading = isLoading,
+                    error = error,
+                    onClearError = {
+                        taskViewModel.clearError()
+                    }
                 )
+            } else {
+                // Manejo cuando no se encuentra la tarea
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
             }
         }
     }
