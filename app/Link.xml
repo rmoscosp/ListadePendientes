@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- REGLAS DE SEGURIDAD CRÍTICAS -->
+
+    <!-- Errores críticos de seguridad que deben ser corregidos -->
+    <issue id="HardcodedValues" severity="error">
+        <message>No hardcodear contraseñas, URLs de API o datos sensibles</message>
+    </issue>
+
+    <issue id="TrustAllX509TrustManager" severity="error">
+        <message>TrustManager que acepta todos los certificados es inseguro</message>
+    </issue>
+
+    <issue id="AllowAllHostnameVerifier" severity="error">
+        <message>HostnameVerifier que acepta todos los hostnames es inseguro</message>
+    </issue>
+
+    <issue id="BadHostnameVerifier" severity="error">
+        <message>Implementación insegura de HostnameVerifier</message>
+    </issue>
+
+    <!-- Advertencias importantes de seguridad -->
+    <issue id="SecureRandom" severity="warning">
+        <message>Usar SecureRandom para generación de números aleatorios criptográficos</message>
+    </issue>
+
+    <issue id="WorldReadableFiles" severity="warning">
+        <message>Archivos legibles por todas las aplicaciones pueden exponer datos</message>
+    </issue>
+
+    <issue id="WorldWriteableFiles" severity="warning">
+        <message>Archivos escribibles por todas las aplicaciones son inseguros</message>
+    </issue>
+
+    <issue id="SQLiteString" severity="warning">
+        <message>Posible vulnerabilidad de inyección SQL</message>
+    </issue>
+
+    <issue id="LogConditional" severity="info">
+        <message>Los logs pueden exponer información sensible en producción</message>
+    </issue>
+
+    <!-- Configuraciones específicas para tu proyecto -->
+    <issue id="PrivateKey" severity="error">
+        <message>No incluir claves privadas en el código fuente</message>
+    </issue>
+
+    <issue id="PackageManagerGetSignatures" severity="warning">
+        <message>Verificar firmas de paquetes correctamente</message>
+    </issue>
+
+    <!-- Ignorar algunos checks que no son relevantes para tu app -->
+    <issue id="GoogleAppIndexingWarning" severity="ignore" />
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="ExtraTranslation" severity="ignore" />
+    <issue id="IconMissingDensityFolder" severity="ignore" />
+    <issue id="IconDensities" severity="ignore" />
+</lint>
